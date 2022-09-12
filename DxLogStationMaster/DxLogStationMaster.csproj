@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{CAFEF90D-260E-40A8-A69B-6C80AA937CD8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DxLogStationMaster</RootNamespace>
+    <AssemblyName>DxLogStationMaster</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\..\..\Program Files %28x86%29\DXLog.net\CustomForms\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\..\..\..\..\Program Files %28x86%29\DXLog.net\CustomForms\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ConfigFile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ConfigFile.1.0.9\lib\net451\ConfigFile.dll</HintPath>
+    </Reference>
+    <Reference Include="CWKeyer, Version=2.1.4.30694, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\DXLog.net\CWKeyer.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DXLComm, Version=2.1.4.24231, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\DXLog.net\DXLComm.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DXLog.net, Version=2.2.13.34462, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\DXLog.net\DXLog.net.exe</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DXLog.net.COM, Version=1.0.0.0, Culture=neutral, PublicKeyToken=d8bfd857531d7549, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\DXLog.net\DXLog.net.COM.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DXLogCalculators, Version=2.1.4.23808, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\DXLog.net\DXLogCalculators.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="DXLogDAL, Version=2.1.4.30873, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\DXLog.net\DXLogDAL.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="IOComm, Version=2.1.4.30687, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\DXLog.net\IOComm.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Antenna.cs" />
+    <Compile Include="AzimuthStatistics.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AzimuthStatistics.Designer.cs">
+      <DependentUpon>AzimuthStatistics.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Band.cs" />
+    <Compile Include="GridSquareProperties.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GridSquareProperties.Designer.cs">
+      <DependentUpon>GridSquareProperties.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GridSquares.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GridSquares.Designer.cs">
+      <DependentUpon>GridSquares.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GridSquareSettings.cs" />
+    <Compile Include="MicrohamStationMaster.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MicrohamStationMaster.Designer.cs">
+      <DependentUpon>MicrohamStationMaster.cs</DependentUpon>
+    </Compile>
+    <Compile Include="OperatorStatistics.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OperatorStatistics.Designer.cs">
+      <DependentUpon>OperatorStatistics.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Rotator.cs" />
+    <Compile Include="StationMaster.cs" />
+    <Compile Include="Third.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Third.Designer.cs">
+      <DependentUpon>Third.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Spotsofme.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Spotsofme.Designer.cs">
+      <DependentUpon>Spotsofme.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="AzimuthStatistics.resx">
+      <DependentUpon>AzimuthStatistics.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridSquareProperties.resx">
+      <DependentUpon>GridSquareProperties.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GridSquares.resx">
+      <DependentUpon>GridSquares.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MicrohamStationMaster.resx">
+      <DependentUpon>MicrohamStationMaster.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OperatorStatistics.resx">
+      <DependentUpon>OperatorStatistics.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Third.resx">
+      <DependentUpon>Third.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Spotsofme.resx">
+      <DependentUpon>Spotsofme.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MapControl\MapControl.csproj">
+      <Project>{bf2a1518-2c22-4c19-a225-ccb31d6638ff}</Project>
+      <Name>MapControl</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32802.440
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{7EAFD583-5F0C-4F1E-A4E6-BB2592194569}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DxLogStationMaster", "DxLogStationMaster\DxLogStationMaster.csproj", "{CAFEF90D-260E-40A8-A69B-6C80AA937CD8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MapControl", "MapControl\MapControl.csproj", "{BF2A1518-2C22-4C19-A225-CCB31D6638FF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CAFEF90D-260E-40A8-A69B-6C80AA937CD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAFEF90D-260E-40A8-A69B-6C80AA937CD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAFEF90D-260E-40A8-A69B-6C80AA937CD8}.Debug|x86.ActiveCfg = Debug|x86
+		{CAFEF90D-260E-40A8-A69B-6C80AA937CD8}.Debug|x86.Build.0 = Debug|x86
+		{CAFEF90D-260E-40A8-A69B-6C80AA937CD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAFEF90D-260E-40A8-A69B-6C80AA937CD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAFEF90D-260E-40A8-A69B-6C80AA937CD8}.Release|x86.ActiveCfg = Release|x86
+		{CAFEF90D-260E-40A8-A69B-6C80AA937CD8}.Release|x86.Build.0 = Release|x86
+		{BF2A1518-2C22-4C19-A225-CCB31D6638FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF2A1518-2C22-4C19-A225-CCB31D6638FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF2A1518-2C22-4C19-A225-CCB31D6638FF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{BF2A1518-2C22-4C19-A225-CCB31D6638FF}.Debug|x86.Build.0 = Debug|Any CPU
+		{BF2A1518-2C22-4C19-A225-CCB31D6638FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF2A1518-2C22-4C19-A225-CCB31D6638FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF2A1518-2C22-4C19-A225-CCB31D6638FF}.Release|x86.ActiveCfg = Release|Any CPU
+		{BF2A1518-2C22-4C19-A225-CCB31D6638FF}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B85D42FF-F26F-454E-807D-7D961406F8A7}
+	EndGlobalSection
+EndGlobal
