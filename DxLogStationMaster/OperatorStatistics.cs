@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace DXLog.net
 {
@@ -21,14 +22,14 @@ namespace DXLog.net
         public OperatorStatistics()
         {
             InitializeComponent();
-            this.FormID = CusFormID;
+            FormID = CusFormID;
         }
 
         public OperatorStatistics(ContestData contestData)
         {
 
             InitializeComponent();
-            this.FormID = CusFormID;
+            FormID = CusFormID;
 
             _contestData = contestData;
 

@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Data;
-using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using ConfigFile;
 
@@ -8,89 +7,99 @@ namespace DXLog.net
 {
     public partial class GridSquareProperties : Form
     {
-        public GridSquareSettings Settings; // Why is this not accessible from DXLogIcomControl??
+        private GridSquareSettings _settings;
 
         public GridSquareProperties()
         {
             InitializeComponent();
         }
 
-        public GridSquareProperties(GridSquareSettings sett)
+        public GridSquareProperties(GridSquareSettings settings)
         {
             InitializeComponent();
-
             DialogResult = DialogResult.Cancel;
 
-            Settings = sett;
+            _settings = settings;
+            _settings.PropertyChanged += _settings_PropertyChanged;
 
-            //for (int i = 1; i <= 4; i++)
-            //{
-            //    edgeSelectionDropDown.Items.Add(i.ToString());
-            //}
+            chkColourWorkedGridSquares.DataBindings.Add(new Binding("Checked", _settings, nameof(GridSquareSettings.ColourWorkedGridSquares), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            chkShowGridFields.DataBindings.Add(new Binding("Checked", _settings, nameof(GridSquareSettings.ShowFields), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            chkShowGridFieldsLabel.DataBindings.Add(new Binding("Checked", _settings, nameof(GridSquareSettings.ShowFieldsLabel), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            chkShowGridSquares.DataBindings.Add(new Binding("Checked", _settings, nameof(GridSquareSettings.ShowGridSquares), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            chkShowGridSquaresLabel.DataBindings.Add(new Binding("Checked", _settings, nameof(GridSquareSettings.ShowGridSquaresLabel), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            chkShowGridSubsquares.DataBindings.Add(new Binding("Checked", _settings, nameof(GridSquareSettings.ShowSubsquares), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            chkShowGridSubsquaresLabel.DataBindings.Add(new Binding("Checked", _settings, nameof(GridSquareSettings.ShowSubsquaresLabel), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            chkDisplaySpots.DataBindings.Add(new Binding("Checked", _settings, nameof(GridSquareSettings.DisplaySpots), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            chkDisplayContacts.DataBindings.Add(new Binding("Checked", _settings, nameof(GridSquareSettings.DisplayContacts), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            chkZoomToQsos.DataBindings.Add(new Binding("Checked", _settings, nameof(GridSquareSettings.ZoomToQsos), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            txtCentreMapOnLocator.DataBindings.Add(new Binding("Text", _settings, nameof(GridSquareSettings.CentreMapOnLocator), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            chkCentreMapOnQth.DataBindings.Add(new Binding("Checked", _settings, nameof(GridSquareSettings.CentreMapOnQth), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            //cboMapProvider.DataBindings.Add(new Binding("SelectedItem", _settings, nameof(GridSquareSettings.ColourWorkedGridSquares), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            cboMinZoom.DataBindings.Add(new Binding("SelectedIndex", _settings, nameof(GridSquareSettings.MinZoom), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            cboMaxZoom.DataBindings.Add(new Binding("SelectedIndex", _settings, nameof(GridSquareSettings.MaxZoom), false, DataSourceUpdateMode.OnPropertyChanged, false));
+            cboStartZoom.DataBindings.Add(new Binding("SelectedIndex", _settings, nameof(GridSquareSettings.StartZoom), false, DataSourceUpdateMode.OnPropertyChanged, false));
 
-            refreshTable();
+            chkShowGridMaster.Checked = chkShowGridFields.Checked && chkShowGridSquares.Checked && chkShowGridSubsquares.Checked;
+            chkShowGridLabelsMaster.Checked = chkShowGridFieldsLabel.Checked && chkShowGridSquaresLabel.Checked && chkShowGridSubsquaresLabel.Checked;
+
+            for (var zoomLevel = 0; zoomLevel < 18; zoomLevel++)
+            {
+                cboMinZoom.Items.Add(zoomLevel);
+                cboMaxZoom.Items.Add(zoomLevel);
+                cboStartZoom.Items.Add(zoomLevel);
+            }
+
         }
 
-        private void refreshTable()
+        private void _settings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            //edgeSelectionDropDown.SelectedIndex = Settings.EdgeSet - 1;
-            //useScrollModeCheckBox.Checked = Settings.Scrolling;
-
-            //for (int i = 0; i < Settings.Bands; i++)
+            //switch (e.PropertyName)
             //{
-            //    TextBox tbcwl = (TextBox)Controls.Find(string.Format("tbcwl{0}", i), true)[0];
-            //    TextBox tbcwu = (TextBox)Controls.Find(string.Format("tbcwu{0}", i), true)[0];
-            //    TextBox tbphl = (TextBox)Controls.Find(string.Format("tbphl{0}", i), true)[0];
-            //    TextBox tbphu = (TextBox)Controls.Find(string.Format("tbphu{0}", i), true)[0];
-            //    TextBox tbdgl = (TextBox)Controls.Find(string.Format("tbdgl{0}", i), true)[0];
-            //    TextBox tbdgu = (TextBox)Controls.Find(string.Format("tbdgu{0}", i), true)[0];
-
-            //    tbcwl.Text = Settings.LowerEdgeCW[i].ToString();
-            //    tbcwu.Text = Settings.UpperEdgeCW[i].ToString();
-            //    tbphl.Text = Settings.LowerEdgePhone[i].ToString();
-            //    tbphu.Text = Settings.UpperEdgePhone[i].ToString();
-            //    tbdgl.Text = Settings.LowerEdgeDigital[i].ToString();
-            //    tbdgu.Text = Settings.UpperEdgeDigital[i].ToString();
+            //    case nameof(_stationMaster.Bands):
+            //        break;
+            //    case nameof(_stationMaster.TxBand):
+            //    case nameof(_stationMaster.RxBand):
+            //        AddAntennaSelectionUI();
+            //        break;
+            //    case nameof(_stationMaster.SelectedRxAntenna):
+            //    case nameof(_stationMaster.SelectedTxAntenna):
+            //        UpdateAntennaSelectionUI();
+            //        break;
+            //    case nameof(_stationMaster.SerialNumber):
+            //        UpdateWindowTitle();
+            //        break;
+            //    case nameof(_stationMaster.Rotator):
+            //        UpdateRotator();
+            //        break;
             //}
         }
+
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            try
+            // Validate the locator is OK.
+            if(!Regex.IsMatch(txtCentreMapOnLocator.Text, @"^[A-R]{2}[\d]{2}[A-X]{2}$", RegexOptions.IgnoreCase))
             {
-                //for (int i = 0; i < Settings.Bands; i++)
-                //{
-                //    TextBox tbcwl = (TextBox)Controls.Find(string.Format("tbcwl{0}", i), true)[0];
-                //    TextBox tbcwu = (TextBox)Controls.Find(string.Format("tbcwu{0}", i), true)[0];
-                //    Settings.LowerEdgeCW[i] = int.Parse(tbcwl.Text);
-                //    Settings.UpperEdgeCW[i] = int.Parse(tbcwu.Text);
-
-                //    TextBox tbphl = (TextBox)Controls.Find(string.Format("tbphl{0}", i), true)[0];
-                //    TextBox tbphu = (TextBox)Controls.Find(string.Format("tbphu{0}", i), true)[0];
-                //    Settings.LowerEdgePhone[i] = int.Parse(tbphl.Text);
-                //    Settings.UpperEdgePhone[i] = int.Parse(tbphu.Text);
-
-                //    TextBox tbdgl = (TextBox)Controls.Find(string.Format("tbdgl{0}", i), true)[0];
-                //    TextBox tbdgu = (TextBox)Controls.Find(string.Format("tbdgu{0}", i), true)[0];
-                //    Settings.LowerEdgeDigital[i] = int.Parse(tbdgl.Text);
-                //    Settings.UpperEdgeDigital[i] = int.Parse(tbdgu.Text);
-                //}
-            }
-            catch
-            {
-                MessageBox.Show("Invalid entry", "ICOM control properties", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Locator is not valid.", "Error!");
                 return;
             }
 
-            //Config.Save("WaterfallEdgeSet", edgeSelectionDropDown.SelectedIndex + 1);
-            //Config.Save("WaterfallScrolling", useScrollModeCheckBox.Checked);
-
-            //Config.Save("WaterfallLowerEdgeCW", string.Join(";", Settings.LowerEdgeCW.Select(i => i.ToString()).ToArray()));
-            //Config.Save("WaterfallUpperEdgeCW", string.Join(";", Settings.UpperEdgeCW.Select(i => i.ToString()).ToArray()));
-            //Config.Save("WaterfallLowerEdgePhone", string.Join(";", Settings.LowerEdgePhone.Select(i => i.ToString()).ToArray()));
-            //Config.Save("WaterfallUpperEdgePhone", string.Join(";", Settings.UpperEdgePhone.Select(i => i.ToString()).ToArray()));
-            //Config.Save("WaterfallLowerEdgeDigital", string.Join(";", Settings.LowerEdgeDigital.Select(i => i.ToString()).ToArray()));
-            //Config.Save("WaterfallUpperEdgeDigital", string.Join(";", Settings.UpperEdgeDigital.Select(i => i.ToString()).ToArray()));
+            Config.Save("ColourWorkedGridSquares", chkColourWorkedGridSquares.Checked);
+            Config.Save("ShowFields", chkShowGridFields.Checked);
+            Config.Save("ShowFieldsLabel", chkShowGridFieldsLabel.Checked);
+            Config.Save("ShowGridSquares", chkShowGridSquares.Checked);
+            Config.Save("ShowGridSquaresLabel", chkShowGridSquaresLabel.Checked);
+            Config.Save("ShowSubsquares", chkShowGridSubsquares.Checked);
+            Config.Save("ShowSubsquaresLabel", chkShowGridSubsquaresLabel.Checked);
+            Config.Save("DisplaySpots", chkDisplaySpots.Checked);
+            Config.Save("DisplayContacts", chkDisplayContacts.Checked);
+            Config.Save("ZoomToQsos", chkZoomToQsos.Checked);
+            Config.Save("CentreMapOnLocator", txtCentreMapOnLocator.Text.ToUpper());
+            Config.Save("CentreMapOnQth", chkCentreMapOnQth.Checked);
+            //Config.Save("MapSourceProvider", cboMapProvider.SelectedItem);
+            Config.Save("MinZoom", cboMinZoom.SelectedIndex);
+            Config.Save("MaxZoom", cboMaxZoom.SelectedIndex);
+            Config.Save("StartZoom", cboStartZoom.SelectedIndex);
 
             DialogResult = DialogResult.OK;
             Close();
@@ -104,24 +113,32 @@ namespace DXLog.net
 
         private void btnDefaults_Click(object sender, EventArgs e)
         {
-            //DefaultRadioSettings def = new DefaultRadioSettings();
+            var settings = new GridSquareSettings();
+            settings.CopyProperties(_settings);
+        }
 
-            //Settings.LowerEdgeCW = def.LowerEdgeCW.Split(';').Select(s => int.Parse(s)).ToArray();
-            //Settings.UpperEdgeCW = def.UpperEdgeCW.Split(';').Select(s => int.Parse(s)).ToArray();
-            //Settings.RefLevelCW = def.RefLevelCW.Split(';').Select(s => int.Parse(s)).ToArray();
-            //Settings.PwrLevelCW = def.PwrLevelCW.Split(';').Select(s => int.Parse(s)).ToArray();
+        private void chkShowGridLabel_CheckedChanged(object sender, EventArgs e)
+        {
+            chkShowGridLabelsMaster.Checked = chkShowGridFieldsLabel.Checked && chkShowGridSquaresLabel.Checked && chkShowGridSubsquaresLabel.Checked;
+        }
 
-            //Settings.LowerEdgePhone = def.LowerEdgePhone.Split(';').Select(s => int.Parse(s)).ToArray();
-            //Settings.UpperEdgePhone = def.UpperEdgePhone.Split(';').Select(s => int.Parse(s)).ToArray();
-            //Settings.RefLevelPhone = def.RefLevelPhone.Split(';').Select(s => int.Parse(s)).ToArray();
-            //Settings.PwrLevelPhone = def.PwrLevelPhone.Split(';').Select(s => int.Parse(s)).ToArray();
+        private void chkShowGrid_CheckedChanged(object sender, EventArgs e)
+        {
+            chkShowGridMaster.Checked = chkShowGridFields.Checked && chkShowGridSquares.Checked && chkShowGridSubsquares.Checked;
+        }
 
-            //Settings.LowerEdgeDigital = def.LowerEdgeDigital.Split(';').Select(s => int.Parse(s)).ToArray();
-            //Settings.UpperEdgeDigital = def.UpperEdgeDigital.Split(';').Select(s => int.Parse(s)).ToArray();
-            //Settings.RefLevelDigital = def.RefLevelDigital.Split(';').Select(s => int.Parse(s)).ToArray();
-            //Settings.PwrLevelDigital = def.PwrLevelDigital.Split(';').Select(s => int.Parse(s)).ToArray();
+        private void chkShowGridMaster_Click(object sender, EventArgs e)
+        {
+            chkShowGridFields.Checked = chkShowGridMaster.Checked;
+            chkShowGridSquares.Checked = chkShowGridMaster.Checked;
+            chkShowGridSubsquares.Checked = chkShowGridMaster.Checked;
+        }
 
-            refreshTable();
+        private void chkShowGridLabelsMaster_Click(object sender, EventArgs e)
+        {
+            chkShowGridFieldsLabel.Checked = chkShowGridLabelsMaster.Checked;
+            chkShowGridSquaresLabel.Checked = chkShowGridLabelsMaster.Checked;
+            chkShowGridSubsquaresLabel.Checked = chkShowGridLabelsMaster.Checked;
         }
     }
 }

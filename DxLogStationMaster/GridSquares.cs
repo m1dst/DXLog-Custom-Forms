@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using System.Windows.Forms.Maps.Common;
 using System.Windows.Forms.Maps.Elements;
 using System.Windows.Forms.Maps.Layers;
+using ConfigFile;
 
 namespace DXLog.net
 {
@@ -21,7 +22,6 @@ namespace DXLog.net
         private FrmMain _frmMain;
 
         private Font _normalFont = new Font("Courier New", 10, FontStyle.Regular);
-        private Font _boldFont = new Font("Courier New", 10, FontStyle.Bold);
 
         private List<string> _workedLocators = new List<string>();
         private List<string> _workedStations = new List<string>();
@@ -50,7 +50,7 @@ namespace DXLog.net
         public GridSquares()
         {
             InitializeComponent();
-            this.FormID = CusFormID;
+            FormID = CusFormID;
 
             mapControl.CacheFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MapControl");
             mapControl.MinZoomLevel = 4;
@@ -62,7 +62,12 @@ namespace DXLog.net
         public GridSquares(ContestData contestData)
         {
             InitializeComponent();
-            this.FormID = CusFormID;
+            FormID = CusFormID;
+
+            if (_frmMain == null)
+            {
+                _frmMain = (FrmMain)(ParentForm ?? Owner);
+            }
 
             mapControl.CacheFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MapControl");
             mapControl.MinZoomLevel = 4;
@@ -83,9 +88,9 @@ namespace DXLog.net
             subsquareGridLayerGroup.AddLayer(subsquareGridPolygonLayer);
 
             // add layers to map
-            mapControl.AddLayer(subsquareGridLayerGroup);
             mapControl.AddLayer(squareGridLayerGroup);
             mapControl.AddLayer(fieldGridLayerGroup);
+            mapControl.AddLayer(subsquareGridLayerGroup);
 
             mapControl.CenterChanged += MapControl_CenterChanged;
             mapControl.ElementClick += MapControl_ElementClick;
@@ -110,23 +115,41 @@ namespace DXLog.net
 
             ColorSetTypes = new[]
             {
-                "Background",
-                "Font",
-                "Grid",
-                "Line"
+                "Field Text",
+                "Field Grid",
+                "Grid Square Text",
+                "Grid Square Grid",
+                "Grid Square Worked Fill",
+                "Grid Square Worked Text",
+                "Sub Grid Square Text",
+                "Sub Grid Square Grid",
+                "Sub Grid Square Worked Fill",
+                "Sub Grid Square Worked Text",
+                "Sub Grid Square Spot Fill",
+                "Sub Grid Square Spot Text"
             };
 
             DefaultColors = new[] {
-                Color.MediumBlue,
-                Color.White,
-                Color.White,
-                Color.Yellow
+                Color.Red,
+                Color.LightGray,
+                Color.Red,
+                Color.DarkGray,
+                Color.Black,
+                Color.Red,
+                Color.Red,
+                Color.Black,
+                Color.Red,
+                Color.Black,
+                Color.Green,
+                Color.White
             };
 
             FormLayoutChangeEvent += new FormLayoutChange(Handle_FormLayoutChangeEvent);
 
             while (contextMenuStrip1.Items.Count > 0)
                 contextMenuStrip2.Items.Add(contextMenuStrip1.Items[0]);
+
+            LoadConfiguration();
 
             RefreshWorkedData();
             UpdateMap();
@@ -140,33 +163,32 @@ namespace DXLog.net
 
         private void MapControl_ElementLeave(object sender, MapControlElementEventArgs e)
         {
-            if (e.Element is Polygon)
-            {
-            }
-            else if (e.Element is Marker)
-            {
-            }
+            //if (e.Element is Polygon)
+            //{
+            //}
+            //else if (e.Element is Marker)
+            //{
+            //}
         }
 
         private void MapControl_ElementEnter(object sender, MapControlElementEventArgs e)
         {
-            if (e.Element is Polygon)
-            {
-            }
-            else if (e.Element is Marker)
-            {
-            }
+            //if (e.Element is Polygon)
+            //{
+            //}
+            //else if (e.Element is Marker)
+            //{
+            //}
         }
 
         private void MapControl_ElementClick(object sender, MapControlElementEventArgs e)
         {
-            if (e.Element is Polygon)
-            {
-            }
-            else if (e.Element is Marker)
-            {
-            }
-
+            //if (e.Element is Polygon)
+            //{
+            //}
+            //else if (e.Element is Marker)
+            //{
+            //}
         }
 
         private void MapControl_CenterChanged(object sender, EventArgs e)
@@ -180,16 +202,11 @@ namespace DXLog.net
             UpdateWindowTitle();
         }
 
-        private void mapControl_MouseWheel(object sender, MouseEventArgs e)
-        {
-            UpdateWindowTitle();
-        }
-
         private void UpdateWindowTitle()
         {
-            GeoPoint g = mapControl.Mouse;
+            var g = mapControl.Mouse;
             var locator = DXLogCalculators.MaidenheadLocator.LatLongToLocator(g.Latitude, g.Longitude);
-            Text = $"{locator}";
+            Text = locator;
         }
 
         private void UpdateMap()
@@ -214,96 +231,147 @@ namespace DXLog.net
                 qsoMarkerLayer.Clear();
                 spotMarkerLayer.Clear();
 
-                DrawSubsquareGrids(true, _workedStations);
-                DrawSquareGrids(true, _workedLocators);
-                DrawFieldGrids(true);
+                if (_gridSquareSettings.ShowSubsquares)
+                {
+                    DrawSubsquareGrids(_gridSquareSettings.ShowSubsquaresLabel, _gridSquareSettings.DisplayContacts ? _workedStations : new List<string>());
+                }
 
+                if (_gridSquareSettings.ShowGridSquares)
+                {
+                    DrawSquareGrids(_gridSquareSettings.ShowGridSquaresLabel, _gridSquareSettings.ColourWorkedGridSquares ? _workedLocators : new List<string>());
+                }
 
-                //chart1.Series["Azimuth"].Points.Clear();
-                //foreach (var nameGroup in groupByAzimuthQuery)
-                //{
-                //    //chart1.Series["Azimuth"].Points.AddXY(nameGroup.Key, nameGroup.Count());
-                //}
+                if (_gridSquareSettings.ShowFields)
+                {
+                    DrawFieldGrids(_gridSquareSettings.ShowFieldsLabel);
+                }
+
             }
 
         }
 
-
-        public void RefreshWorkedData()
+        private void RefreshWorkedData()
         {
-            this._workedLocators.Clear();
-            this._workedStations.Clear();
-            string aband = _contestData.ActiveR12Band;
-            Parallel.ForEach<DXQSO>((IEnumerable<DXQSO>)_contestData.QSOList.FindAll((Predicate<DXQSO>)(obj => obj.Band == aband)).ToList<DXQSO>(), (Action<DXQSO>)(obj =>
+            lock (_workedLocators)
             {
-                string str = string.Empty;
+                _workedLocators.Clear();
+            }
+            lock (_workedStations)
+            {
+                _workedStations.Clear();
+            }
+
+            var activeBand = _contestData.ActiveR12Band;
+            Parallel.ForEach<DXQSO>((IEnumerable<DXQSO>)_contestData.QSOList.FindAll((Predicate<DXQSO>)(obj => obj.Band == activeBand)).ToList<DXQSO>(), (Action<DXQSO>)(obj =>
+            {
+                var str = string.Empty;
                 if (_contestData.activeContest.cdata.field_rcvd_type.StartsWith("GRID"))
+                {
                     str = obj.Rcvd4;
+                }
                 else if (_contestData.activeContest.cdata.field_recinfo_type.StartsWith("GRID"))
+                {
                     str = obj.RecInfo;
+                }
                 else if (_contestData.activeContest.cdata.field_recinfo2_type.StartsWith("GRID"))
+                {
                     str = obj.RecInfo2;
+                }
                 else if (_contestData.activeContest.cdata.field_recinfo3_type.StartsWith("GRID"))
+                {
                     str = obj.RecInfo3;
-                if (!(str != string.Empty))
+                }
+                if (str == string.Empty)
+                {
                     return;
-                
+                }
+
                 //if (this.mapProperties.optColorizeWorked)
                 {
-                    lock (this._workedLocators)
+                    lock (_workedLocators)
                     {
-                        if (!this._workedLocators.Contains(str.Substring(0, 4)))
-                            this._workedLocators.Add(str.Substring(0, 4));
+                        if (!_workedLocators.Contains(str.Substring(0, 4)))
+                        {
+                            _workedLocators.Add(str.Substring(0, 4));
+                        }
                     }
                 }
                 //if (!this.mapProperties.optShowContacts)
                 //    return;
-                lock (this._workedStations)
+                lock (_workedStations)
                 {
-                    if (this._workedStations.Contains(str))
+                    if (_workedStations.Contains(str))
+                    {
                         return;
-                    this._workedStations.Add(str);
+                    }
+
+                    _workedStations.Add(str);
                 }
             }));
-            FrmMain frmMain = this.ParentForm == null ? (FrmMain)this.Owner : (FrmMain)this.ParentForm;
-            if (frmMain == null)
-                return;
-            this._notWorkedSpotLocators = frmMain.GetLocatorsFromSpots(aband);
+
+            if (_frmMain == null)
+            {
+                _frmMain = (FrmMain)(ParentForm ?? Owner);
+                if (_frmMain == null)
+                    return;
+            }
+
+            lock (_notWorkedSpotLocators)
+            {
+                _notWorkedSpotLocators = _frmMain.GetLocatorsFromSpots(activeBand);
+            }
+
         }
 
-        public void AddWorkedLocator(DXQSO qso)
+        private void AddWorkedLocator(DXQSO qso)
         {
-            string str = string.Empty;
+            var str = string.Empty;
             if (_contestData.activeContest.cdata.field_rcvd_type.StartsWith("GRID"))
+            {
                 str = qso.Rcvd4;
-            else if (_contestData.activeContest.cdata.field_recinfo_type.StartsWith("GRID"))
-                str = qso.RecInfo;
-            else if (_contestData.activeContest.cdata.field_recinfo2_type.StartsWith("GRID"))
-                str = qso.RecInfo2;
-            else if (_contestData.activeContest.cdata.field_recinfo3_type.StartsWith("GRID"))
-                str = qso.RecInfo3;
-            lock (this._workedLocators)
-            {
-                if (!this._workedLocators.Contains(str.Substring(0, 4)))
-                    this._workedLocators.Add(str.Substring(0, 4));
             }
-            lock (this._workedStations)
+            else if (_contestData.activeContest.cdata.field_recinfo_type.StartsWith("GRID"))
             {
-                if (this._workedStations.Contains(str))
+                str = qso.RecInfo;
+            }
+            else if (_contestData.activeContest.cdata.field_recinfo2_type.StartsWith("GRID"))
+            {
+                str = qso.RecInfo2;
+            }
+            else if (_contestData.activeContest.cdata.field_recinfo3_type.StartsWith("GRID"))
+            {
+                str = qso.RecInfo3;
+            }
+            lock (_workedLocators)
+            {
+                if (!_workedLocators.Contains(str.Substring(0, 4)))
+                {
+                    _workedLocators.Add(str.Substring(0, 4));
+                }
+            }
+            lock (_workedStations)
+            {
+                if (_workedStations.Contains(str))
+                {
                     return;
-                this._workedStations.Add(str);
+                }
+                _workedStations.Add(str);
             }
         }
 
         public void AddSpot(string grid)
         {
-            if (!(grid != string.Empty))
-                return;
-            lock (this._notWorkedSpotLocators)
+            if (grid == string.Empty)
             {
-                if (this._notWorkedSpotLocators.Contains(grid))
+                return;
+            }
+            lock (_notWorkedSpotLocators)
+            {
+                if (_notWorkedSpotLocators.Contains(grid))
+                {
                     return;
-                this._notWorkedSpotLocators.Add(grid);
+                }
+                _notWorkedSpotLocators.Add(grid);
             }
         }
 
@@ -367,7 +435,7 @@ namespace DXLog.net
 
             if (_frmMain == null)
             {
-                _frmMain = (FrmMain)(ParentForm == null ? Owner : ParentForm);
+                _frmMain = (FrmMain)(ParentForm ?? Owner);
                 if (_frmMain != null)
                 {
                     _frmMain.NewQSOSaved += new FrmMain.NewQSOSavedEvent(MainForm_NewQSOSaved);
@@ -395,8 +463,14 @@ namespace DXLog.net
             var n = mapControl.TopLeft.Latitude;
             var s = mapControl.BottomRight.Latitude;
 
-            if (n > 85) n = 85;
-            if (s < -85) s = -85;
+            if (n > 85)
+            {
+                n = 85;
+            }
+            if (s < -85)
+            {
+                s = -85;
+            }
 
             var left = (float)(Math.Floor(e / (unit * 2)) * (unit * 2));
             var right = (float)(Math.Ceiling(w / (unit * 2)) * (unit * 2));
@@ -439,8 +513,14 @@ namespace DXLog.net
             var n = mapControl.TopLeft.Latitude;
             var s = mapControl.BottomRight.Latitude;
 
-            if (n > 85) n = 85;
-            if (s < -85) s = -85;
+            if (n > 85)
+            {
+                n = 85;
+            }
+            if (s < -85)
+            {
+                s = -85;
+            }
 
             var left = (float)(Math.Floor(e / (unit * 2)) * (unit * 2));
             var right = (float)(Math.Ceiling(w / (unit * 2)) * (unit * 2));
@@ -537,8 +617,14 @@ namespace DXLog.net
             var n = mapControl.TopLeft.Latitude;
             var s = mapControl.BottomRight.Latitude;
 
-            if (n > 85) n = 85;
-            if (s < -85) s = -85;
+            if (n > 85)
+            {
+                n = 85;
+            }
+            if (s < -85)
+            {
+                s = -85;
+            }
 
             var left = (float)(Math.Floor(e / (unit * 2)) * (unit * 2));
             var right = (float)(Math.Ceiling(w / (unit * 2)) * (unit * 2));
@@ -578,63 +664,41 @@ namespace DXLog.net
 
         private void propertiesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Form prop = new GridSquareProperties(_gridSquareSettings);
-            if (prop.ShowDialog() == DialogResult.OK)
+            var frm = new GridSquareProperties(_gridSquareSettings);
+            if (frm.ShowDialog() == DialogResult.OK)
             {
-                GetConfig(false);
+                LoadConfiguration();
             }
         }
 
-        void GetConfig(bool all)
+        void LoadConfiguration()
         {
             try
             {
-                //Set.LowerEdgeCW = Config.Read("WaterfallLowerEdgeCW", Def.LowerEdgeCW).Split(';').Select(s => int.Parse(s)).ToArray();
-                //Set.UpperEdgeCW = Config.Read("WaterfallUpperEdgeCW", Def.UpperEdgeCW).Split(';').Select(s => int.Parse(s)).ToArray();
-
-                //Set.LowerEdgePhone = Config.Read("WaterfallLowerEdgePhone", Def.LowerEdgePhone).Split(';').Select(s => int.Parse(s)).ToArray();
-                //Set.UpperEdgePhone = Config.Read("WaterfallUpperEdgePhone", Def.UpperEdgePhone).Split(';').Select(s => int.Parse(s)).ToArray();
-
-                //Set.LowerEdgeDigital = Config.Read("WaterfallLowerEdgeDigital", Def.LowerEdgeDigital).Split(';').Select(s => int.Parse(s)).ToArray();
-                //Set.UpperEdgeDigital = Config.Read("WaterfallUpperEdgeDigital", Def.UpperEdgeDigital).Split(';').Select(s => int.Parse(s)).ToArray();
-
-                //Set.EdgeSet = Config.Read("WaterfallEdgeSet", Def.EdgeSet);
-                //Set.Scrolling = Config.Read("WaterfallScrolling", Def.UseScrolling);
-
-                //if (all)
-                //{
-                //    Set.RefLevelCW = Config.Read("WaterfallRefCW", Def.RefLevelCW).Split(';').Select(s => int.Parse(s)).ToArray();
-                //    Set.RefLevelPhone = Config.Read("WaterfallRefPhone", Def.RefLevelPhone).Split(';').Select(s => int.Parse(s)).ToArray();
-                //    Set.RefLevelDigital = Config.Read("WaterfallRefDigital", Def.RefLevelDigital).Split(';').Select(s => int.Parse(s)).ToArray();
-
-                //    Set.PwrLevelCW = Config.Read("TransmitPowerCW", Def.PwrLevelCW).Split(';').Select(s => int.Parse(s)).ToArray();
-                //    Set.PwrLevelPhone = Config.Read("TransmitPowerPhone", Def.PwrLevelPhone).Split(';').Select(s => int.Parse(s)).ToArray();
-                //    Set.PwrLevelDigital = Config.Read("TransmitPowerDigital", Def.PwrLevelDigital).Split(';').Select(s => int.Parse(s)).ToArray();
-                //}
+                _gridSquareSettings.CentreMapOnLocator = Config.Read(nameof(GridSquareSettings.CentreMapOnLocator), new GridSquareSettings().CentreMapOnLocator).ToUpper();
+                _gridSquareSettings.CentreMapOnQth = Config.Read(nameof(GridSquareSettings.CentreMapOnQth), new GridSquareSettings().CentreMapOnQth);
+                _gridSquareSettings.ColourWorkedGridSquares = Config.Read(nameof(GridSquareSettings.ColourWorkedGridSquares), new GridSquareSettings().ColourWorkedGridSquares);
+                _gridSquareSettings.DisplayContacts = Config.Read(nameof(GridSquareSettings.DisplayContacts), new GridSquareSettings().DisplayContacts);
+                _gridSquareSettings.DisplaySpots = Config.Read(nameof(GridSquareSettings.DisplaySpots), new GridSquareSettings().DisplaySpots);
+                _gridSquareSettings.MapSourceProvider = Config.Read(nameof(GridSquareSettings.MapSourceProvider), new GridSquareSettings().MapSourceProvider);
+                _gridSquareSettings.MaxZoom = Config.Read(nameof(GridSquareSettings.MaxZoom), new GridSquareSettings().MaxZoom);
+                _gridSquareSettings.MinZoom = Config.Read(nameof(GridSquareSettings.MinZoom), new GridSquareSettings().MinZoom);
+                _gridSquareSettings.ShowFields = Config.Read(nameof(GridSquareSettings.ShowFields), new GridSquareSettings().ShowFields);
+                _gridSquareSettings.ShowFieldsLabel = Config.Read(nameof(GridSquareSettings.ShowFieldsLabel), new GridSquareSettings().ShowFieldsLabel);
+                _gridSquareSettings.ShowGridSquares = Config.Read(nameof(GridSquareSettings.ShowGridSquares), new GridSquareSettings().ShowGridSquares);
+                _gridSquareSettings.ShowGridSquaresLabel = Config.Read(nameof(GridSquareSettings.ShowGridSquaresLabel), new GridSquareSettings().ShowGridSquaresLabel);
+                _gridSquareSettings.ShowSubsquares = Config.Read(nameof(GridSquareSettings.ShowSubsquares), new GridSquareSettings().ShowSubsquares);
+                _gridSquareSettings.ShowSubsquaresLabel = Config.Read(nameof(GridSquareSettings.ShowSubsquaresLabel), new GridSquareSettings().ShowSubsquaresLabel);
+                _gridSquareSettings.StartZoom = Config.Read(nameof(GridSquareSettings.StartZoom), new GridSquareSettings().StartZoom);
+                _gridSquareSettings.ZoomToQsos = Config.Read(nameof(GridSquareSettings.ZoomToQsos), new GridSquareSettings().ZoomToQsos);
             }
             catch
             {
-                // Settings are somehow corrupted. Reset everything to default.
-                //Set.LowerEdgeCW = Def.LowerEdgeCW.Split(';').Select(s => int.Parse(s)).ToArray();
-                //Set.UpperEdgeCW = Def.UpperEdgeCW.Split(';').Select(s => int.Parse(s)).ToArray();
-
-                //Set.LowerEdgePhone = Def.LowerEdgePhone.Split(';').Select(s => int.Parse(s)).ToArray();
-                //Set.UpperEdgePhone = Def.UpperEdgePhone.Split(';').Select(s => int.Parse(s)).ToArray();
-
-                //Set.LowerEdgeDigital = Def.LowerEdgeDigital.Split(';').Select(s => int.Parse(s)).ToArray();
-                //Set.UpperEdgeDigital = Def.UpperEdgeDigital.Split(';').Select(s => int.Parse(s)).ToArray();
-
-                //Set.EdgeSet = Def.EdgeSet;
-                //Set.Scrolling = Def.UseScrolling;
-
-                //Set.RefLevelCW = Def.RefLevelCW.Split(';').Select(s => int.Parse(s)).ToArray();
-                //Set.RefLevelPhone = Def.RefLevelPhone.Split(';').Select(s => int.Parse(s)).ToArray();
-                //Set.RefLevelDigital = Def.RefLevelDigital.Split(';').Select(s => int.Parse(s)).ToArray();
-
-                //Set.PwrLevelPhone = Def.PwrLevelPhone.Split(';').Select(s => int.Parse(s)).ToArray();
-                //Set.PwrLevelCW = Def.PwrLevelCW.Split(';').Select(s => int.Parse(s)).ToArray();
-                //Set.PwrLevelDigital = Def.PwrLevelDigital.Split(';').Select(s => int.Parse(s)).ToArray();
+                // Settings were corrupted.  Load defaults.
+                _gridSquareSettings = new GridSquareSettings();
             }
+
+            UpdateMap();
         }
 
         private void OnClosing(object sender, FormClosingEventArgs e)
@@ -651,6 +715,7 @@ namespace DXLog.net
             //_cdata.ActiveVFOChanged -= UpdateRadio;
             //_cdata.ActiveRadioBandChanged -= UpdateRadio;
         }
+
     }
 
 }

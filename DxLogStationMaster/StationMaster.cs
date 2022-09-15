@@ -642,7 +642,7 @@ namespace DxLogStationMaster
                 return true;
             }
             return false;
-           
+
             return true;
         }
 

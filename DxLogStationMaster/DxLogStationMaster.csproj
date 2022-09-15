@@ -35,7 +35,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\..\..\..\..\Program Files %28x86%29\DXLog.net\CustomForms\</OutputPath>
+    <OutputPath>..\..\..\..\..\..\Program Files %28x86%29\DXLog.net\CustomForms\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
@@ -54,9 +54,6 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ConfigFile, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\ConfigFile.1.0.9\lib\net451\ConfigFile.dll</HintPath>
-    </Reference>
     <Reference Include="CWKeyer, Version=2.1.4.30694, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\DXLog.net\CWKeyer.dll</HintPath>
@@ -92,6 +89,11 @@
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\DXLog.net\IOComm.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\DXLog.net\Newtonsoft.Json.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -102,6 +104,10 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Utilities">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\DXLog.net\Utilities.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Antenna.cs" />
@@ -131,12 +137,19 @@
     <Compile Include="MicrohamStationMaster.Designer.cs">
       <DependentUpon>MicrohamStationMaster.cs</DependentUpon>
     </Compile>
+    <Compile Include="ExchangeInfo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ExchangeInfo.Designer.cs">
+      <DependentUpon>ExchangeInfo.cs</DependentUpon>
+    </Compile>
     <Compile Include="OperatorStatistics.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="OperatorStatistics.Designer.cs">
       <DependentUpon>OperatorStatistics.cs</DependentUpon>
     </Compile>
+    <Compile Include="Reflection.cs" />
     <Compile Include="Rotator.cs" />
     <Compile Include="StationMaster.cs" />
     <Compile Include="Third.cs">
@@ -166,6 +179,9 @@
     <EmbeddedResource Include="MicrohamStationMaster.resx">
       <DependentUpon>MicrohamStationMaster.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="ExchangeInfo.resx">
+      <DependentUpon>ExchangeInfo.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="OperatorStatistics.resx">
       <DependentUpon>OperatorStatistics.cs</DependentUpon>
     </EmbeddedResource>
@@ -182,9 +198,6 @@
       <Name>MapControl</Name>
       <Private>False</Private>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
