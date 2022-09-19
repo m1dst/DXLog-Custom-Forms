@@ -33,12 +33,14 @@ namespace DXLog.net
             ColorSetTypes = new[]
             {
                 "Background",
-                "Font"
+                "Font",
+                "QSO Field Background"
             };
 
             DefaultColors = new[] {
                 Color.MediumBlue,
-                Color.White
+                Color.White,
+                Color.Teal
             };
 
             FormLayoutChangeEvent += Handle_FormLayoutChangeEvent;
@@ -154,17 +156,21 @@ namespace DXLog.net
                 {
                     _contestData.RadioDataChanged += Handle_RadioDataChanged;
                     _frmMain.CurrentEntryLine.ActualQSO.DataChangedEvent += ActualQSO_DataChangedEvent;
+                }
+            }
 
-                    foreach (var ctrl in _frmMain.CurrentEntryLine.Controls)
+            if (_frmMain != null)
+            {
+                foreach (var ctrl in _frmMain.CurrentEntryLine.Controls)
+                {
+                    if (ctrl is TextBox textBox)
                     {
-                        if (ctrl is TextBox textBox)
-                        {
-                            textBox.BackColor = Color.LightGray;
-                            textBox.TextChanged += TextBox_TextChanged;
-                        }
+                        textBox.BackColor = getColorByType("QSO Field Background");
+                        textBox.TextChanged += TextBox_TextChanged;
                     }
                 }
             }
+
 
             BackColor = getColorByType("Background");
             lblExchange.ForeColor = getColorByType("Font");

@@ -53,7 +53,6 @@ namespace DXLog.net
             this.label4 = new System.Windows.Forms.Label();
             this.cboMinZoom = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.btnClearCache = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.cboMapProvider = new System.Windows.Forms.ComboBox();
             this.chkCentreMapOnQth = new System.Windows.Forms.CheckBox();
@@ -252,7 +251,6 @@ namespace DXLog.net
             this.groupBox2.Controls.Add(this.label4);
             this.groupBox2.Controls.Add(this.cboMinZoom);
             this.groupBox2.Controls.Add(this.label3);
-            this.groupBox2.Controls.Add(this.btnClearCache);
             this.groupBox2.Controls.Add(this.label2);
             this.groupBox2.Controls.Add(this.cboMapProvider);
             this.groupBox2.Controls.Add(this.chkCentreMapOnQth);
@@ -327,15 +325,6 @@ namespace DXLog.net
             this.label3.Size = new System.Drawing.Size(217, 13);
             this.label3.TabIndex = 6;
             this.label3.Text = "* colours are configured in the standard way.";
-            // 
-            // btnClearCache
-            // 
-            this.btnClearCache.Location = new System.Drawing.Point(184, 94);
-            this.btnClearCache.Name = "btnClearCache";
-            this.btnClearCache.Size = new System.Drawing.Size(75, 23);
-            this.btnClearCache.TabIndex = 5;
-            this.btnClearCache.Text = "Clear Cache";
-            this.btnClearCache.UseVisualStyleBackColor = true;
             // 
             // label2
             // 
@@ -433,7 +422,6 @@ namespace DXLog.net
         private System.Windows.Forms.CheckBox chkShowGridLabelsMaster;
         private System.Windows.Forms.CheckBox chkZoomToQsos;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Button btnClearCache;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox cboMapProvider;
         private System.Windows.Forms.Label label5;

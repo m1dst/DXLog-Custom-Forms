@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -28,8 +27,6 @@ namespace DXLog.net
         private List<string> _notWorkedSpotLocators = new List<string>();
 
         private GridSquareSettings _gridSquareSettings = new GridSquareSettings();
-
-        private void handle_FormLayoutChangeEvent() => InitializeLayout();
 
         private LayerGroup fieldGridLayerGroup = new LayerGroup();
         private PolygonLayer fieldGridPolygonLayer = new PolygonLayer(20);
@@ -69,48 +66,6 @@ namespace DXLog.net
                 _frmMain = (FrmMain)(ParentForm ?? Owner);
             }
 
-            mapControl.CacheFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MapControl");
-            mapControl.MinZoomLevel = 4;
-            mapControl.MaxZoomLevel = 14;
-            mapControl.ZoomLevel = 4;
-            mapControl.TileServer = new OpenStreetMapTileServer(userAgent: "DXLog");
-
-            _contestData = contestData;
-
-            // group layers together
-            fieldGridLayerGroup.AddLayer(fieldGridMarkerLayer);
-            fieldGridLayerGroup.AddLayer(fieldGridPolygonLayer);
-
-            squareGridLayerGroup.AddLayer(squareGridMarkerLayer);
-            squareGridLayerGroup.AddLayer(squareGridPolygonLayer);
-
-            subsquareGridLayerGroup.AddLayer(subsquareGridMarkerLayer);
-            subsquareGridLayerGroup.AddLayer(subsquareGridPolygonLayer);
-
-            // add layers to map
-            mapControl.AddLayer(squareGridLayerGroup);
-            mapControl.AddLayer(fieldGridLayerGroup);
-            mapControl.AddLayer(subsquareGridLayerGroup);
-
-            mapControl.CenterChanged += MapControl_CenterChanged;
-            mapControl.ElementClick += MapControl_ElementClick;
-            mapControl.ElementEnter += MapControl_ElementEnter;
-            mapControl.ElementLeave += MapControl_ElementLeave;
-
-            var tileServers = new ITileServer[]
-            {
-                new OpenStreetMapTileServer(userAgent: "DemoApp for WinFormsMapControl 1.0 contact example@example.com"),
-                new StamenTerrainTileServer(),
-                new OpenTopoMapServer(),
-                new OfflineTileServer(),
-                new BingMapsAerialTileServer(),
-                new BingMapsRoadsTileServer(),
-                new BingMapsHybridTileServer(),
-            };
-
-            var locator = DXLogCalculators.MaidenheadLocator.LocatorToLatLong("JO60XA");
-            mapControl.Center = new GeoPoint((float)locator.Long, (float)locator.Lat);
-
             _contestData = contestData;
 
             ColorSetTypes = new[]
@@ -130,8 +85,8 @@ namespace DXLog.net
             };
 
             DefaultColors = new[] {
-                Color.Red,
-                Color.LightGray,
+                Color.Coral,
+                Color.Gray,
                 Color.Red,
                 Color.DarkGray,
                 Color.Black,
@@ -144,15 +99,52 @@ namespace DXLog.net
                 Color.White
             };
 
-            FormLayoutChangeEvent += new FormLayoutChange(Handle_FormLayoutChangeEvent);
+            FormLayoutChangeEvent += Handle_FormLayoutChangeEvent;
 
             while (contextMenuStrip1.Items.Count > 0)
                 contextMenuStrip2.Items.Add(contextMenuStrip1.Items[0]);
 
-            LoadConfiguration();
+            mapControl.CacheFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MapControl");
+            mapControl.MinZoomLevel = 4;
+            mapControl.MaxZoomLevel = 14;
+            mapControl.ZoomLevel = 4;
+            mapControl.TileServer = new OpenStreetMapTileServer(userAgent: "DXLog");
 
+            // group layers together
+            fieldGridLayerGroup.AddLayer(fieldGridMarkerLayer);
+            fieldGridLayerGroup.AddLayer(fieldGridPolygonLayer);
+
+            squareGridLayerGroup.AddLayer(squareGridMarkerLayer);
+            squareGridLayerGroup.AddLayer(squareGridPolygonLayer);
+
+            subsquareGridLayerGroup.AddLayer(subsquareGridMarkerLayer);
+            subsquareGridLayerGroup.AddLayer(subsquareGridPolygonLayer);
+
+            // add layers to map
+            mapControl.AddLayer(squareGridLayerGroup);
+            mapControl.AddLayer(fieldGridLayerGroup);
+            mapControl.AddLayer(subsquareGridLayerGroup);
+
+            mapControl.ElementClick += MapControl_ElementClick;
+            mapControl.ElementEnter += MapControl_ElementEnter;
+            mapControl.ElementLeave += MapControl_ElementLeave;
+
+            var tileServers = new ITileServer[]
+            {
+                new OpenStreetMapTileServer(userAgent: "DemoApp for WinFormsMapControl 1.0 contact example@example.com"),
+                new StamenTerrainTileServer(),
+                new OpenTopoMapServer(),
+                new OfflineTileServer(),
+                new BingMapsAerialTileServer(),
+                new BingMapsRoadsTileServer(),
+                new BingMapsHybridTileServer(),
+            };
+
+            var locator = DXLogCalculators.MaidenheadLocator.LocatorToLatLong("JO60XA");
+            mapControl.Center = new GeoPoint((float)locator.Long, (float)locator.Lat);
+
+            LoadConfiguration();
             RefreshWorkedData();
-            UpdateMap();
 
         }
 
@@ -262,7 +254,7 @@ namespace DXLog.net
             }
 
             var activeBand = _contestData.ActiveR12Band;
-            Parallel.ForEach<DXQSO>((IEnumerable<DXQSO>)_contestData.QSOList.FindAll((Predicate<DXQSO>)(obj => obj.Band == activeBand)).ToList<DXQSO>(), (Action<DXQSO>)(obj =>
+            Parallel.ForEach(_contestData.QSOList.FindAll(obj => obj.Band == activeBand).ToList(), obj =>
             {
                 var str = string.Empty;
                 if (_contestData.activeContest.cdata.field_rcvd_type.StartsWith("GRID"))
@@ -286,18 +278,14 @@ namespace DXLog.net
                     return;
                 }
 
-                //if (this.mapProperties.optColorizeWorked)
+                lock (_workedLocators)
                 {
-                    lock (_workedLocators)
+                    if (!_workedLocators.Contains(str.Substring(0, 4)))
                     {
-                        if (!_workedLocators.Contains(str.Substring(0, 4)))
-                        {
-                            _workedLocators.Add(str.Substring(0, 4));
-                        }
+                        _workedLocators.Add(str.Substring(0, 4));
                     }
                 }
-                //if (!this.mapProperties.optShowContacts)
-                //    return;
+
                 lock (_workedStations)
                 {
                     if (_workedStations.Contains(str))
@@ -307,7 +295,7 @@ namespace DXLog.net
 
                     _workedStations.Add(str);
                 }
-            }));
+            });
 
             if (_frmMain == null)
             {
@@ -385,62 +373,17 @@ namespace DXLog.net
         {
             base.InitializeLayout(_normalFont);
 
-            //chart1.BackColor = getColorByType("Background");
-            //chart1.Series[0].Color = getColorByType("Line");
-            //
-            //chart1.ChartAreas[0].BackColor = getColorByType("Background");
-            //
-            //chart1.ChartAreas[0].AxisX.LabelStyle.ForeColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisX.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisX.MajorGrid.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisX.MajorTickMark.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisX.MinorGrid.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisX.MinorTickMark.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisX.LabelStyle.Font = _normalFont;
-            //
-            //chart1.ChartAreas[0].AxisX2.LabelStyle.ForeColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisX2.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisX2.MajorGrid.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisX2.MajorTickMark.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisX2.MinorGrid.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisX2.MinorTickMark.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisX2.LabelStyle.Font = _normalFont;
-            //
-            //chart1.ChartAreas[0].AxisY.LabelStyle.ForeColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisY.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisY.MajorGrid.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisY.MajorTickMark.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisY.MinorGrid.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisY.MinorTickMark.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisY.LabelStyle.Font = _normalFont;
-            //
-            //chart1.ChartAreas[0].AxisY2.LabelStyle.ForeColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisY2.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisY2.MajorGrid.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisY2.MajorTickMark.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisY2.MinorGrid.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisY2.MinorTickMark.LineColor = getColorByType("Grid");
-            //chart1.ChartAreas[0].AxisY2.LabelStyle.Font = _normalFont;
-            //
-            //if (base.FormLayout.FontName.Contains("Courier"))
-            //{
-            //    _normalFont = new Font(base.FormLayout.FontName, base.FormLayout.FontSize, FontStyle.Regular);
-            //    _boldFont = new Font(base.FormLayout.FontName, base.FormLayout.FontSize, FontStyle.Bold);
-            //}
-            //else
-            //{
-            //    _normalFont = Helper.GetSpecialFont(FontStyle.Regular, base.FormLayout.FontSize);
-            //    _boldFont = Helper.GetSpecialFont(FontStyle.Bold, base.FormLayout.FontSize);
-            //}
-
             if (_frmMain == null)
             {
                 _frmMain = (FrmMain)(ParentForm ?? Owner);
                 if (_frmMain != null)
                 {
-                    _frmMain.NewQSOSaved += new FrmMain.NewQSOSavedEvent(MainForm_NewQSOSaved);
+                    _frmMain.NewQSOSaved += MainForm_NewQSOSaved;
+                    mapControl.CenterChanged += MapControl_CenterChanged;
                 }
             }
+
+            UpdateMap();
 
         }
 
@@ -452,8 +395,10 @@ namespace DXLog.net
         private void DrawFieldGrids(bool showLabels)
         {
 
-            var polygonStyle = new PolygonStyle(new SolidBrush(Color.FromArgb(0, Color.Blue)), new Pen(Color.Blue, 3));
-            var brush = new SolidBrush(Color.Red);
+            var fieldGridColor = getColorByType("Field Grid");
+
+            var polygonStyle = new PolygonStyle(new SolidBrush(Color.FromArgb(0, fieldGridColor)), new Pen(fieldGridColor, 3));
+            var brush = new SolidBrush(getColorByType("Field Text"));
             var markerStyle = new MarkerStyle(null, 0, null, null, brush, new Font(FontFamily.GenericMonospace, 40f, FontStyle.Bold), new StringFormat { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
 
             var unit = 10f;
@@ -611,7 +556,6 @@ namespace DXLog.net
                 return;
             }
 
-
             var e = mapControl.TopLeft.Longitude;
             var w = mapControl.TopRight.Longitude;
             var n = mapControl.TopLeft.Latitude;
@@ -668,6 +612,7 @@ namespace DXLog.net
             if (frm.ShowDialog() == DialogResult.OK)
             {
                 LoadConfiguration();
+                UpdateMap();
             }
         }
 
@@ -698,24 +643,13 @@ namespace DXLog.net
                 _gridSquareSettings = new GridSquareSettings();
             }
 
-            UpdateMap();
         }
 
-        private void OnClosing(object sender, FormClosingEventArgs e)
+        private void clearCacheToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            //Config.Save("WaterfallRefCW", string.Join(";", Set.RefLevelCW.Select(i => i.ToString()).ToArray()));
-            //Config.Save("WaterfallRefPhone", string.Join(";", Set.RefLevelPhone.Select(i => i.ToString()).ToArray()));
-            //Config.Save("WaterfallRefDigital", string.Join(";", Set.RefLevelDigital.Select(i => i.ToString()).ToArray()));
-
-            //Config.Save("TransmitPowerCW", string.Join(";", Set.PwrLevelCW.Select(i => i.ToString()).ToArray()));
-            //Config.Save("TransmitPowerPhone", string.Join(";", Set.PwrLevelPhone.Select(i => i.ToString()).ToArray()));
-            //Config.Save("TransmitPowerDigital", string.Join(";", Set.PwrLevelDigital.Select(i => i.ToString()).ToArray()));
-
-            //mainForm.scheduler.Second -= UpdateRadio;
-            //_cdata.ActiveVFOChanged -= UpdateRadio;
-            //_cdata.ActiveRadioBandChanged -= UpdateRadio;
+            mapControl.ClearCache(true);
+            ActiveControl = mapControl;
         }
-
     }
 
 }
